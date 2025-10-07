@@ -1,0 +1,32 @@
+Things I learned:
+
+#1
+If you don't have a folder use:
+npm create vite@latest my-map-app
+cd my-map-app
+npm install
+npm run dev
+
+But if you already do (like with this project because I cloned form github)
+Go into your folder and just do "npm creat vite@latest"
+cd your-cloned-folder
+npm create vite@latest .
+
+
+
+#2
+Install a react-leaflet to make it easier to use leaflet
+
+What is leaflet?
+It is an open source javascript library for interactive maps
+It uses tile provilers like OpenStreetMap
+
+npm install leaflet react-leaflet
+
+Note: It also installs leaflet itself
+
+
+#3
+To find the coordinates on a map...
+Go to google maps, find the exact spot. then right click
+and click on "Whats here"
