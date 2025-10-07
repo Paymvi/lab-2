@@ -30,3 +30,19 @@ Note: It also installs leaflet itself
 To find the coordinates on a map...
 Go to google maps, find the exact spot. then right click
 and click on "Whats here"
+
+
+
+#4
+I learned this is the structure of a vite/react project
+
+my-map-app/
+├─ node_modules/
+├─ public/
+├─ src/
+│  ├─ App.jsx       ← Your main component (place your code here)
+│  ├─ main.jsx      ← Entry point (renders <App /> into the DOM)
+│  └─ index.css     ← Optional CSS
+├─ package.json
+├─ vite.config.js
+└─ ...
