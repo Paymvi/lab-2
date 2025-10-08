@@ -24,10 +24,13 @@ function ClickHandler( { onMapClick }){
 function App() {
   const [locations, setLocations] = useState([]);
   const [currentProvider, setCurrentProvider] = useState("osm"); // Makes sure the website defaults to osm, but the tile provider can be changed as well
-  
+  const [isDone, setIsDone] = useState(false);
 
   // Here we add to the list of locations
   const handleMapClick = (latlng) => {
+
+    // Stops it from marking up spot after clicking "done"
+    if (isDone) return;
 
     const info = prompt("What is your favorite restaurant around here?");
     if (!info) return;
@@ -86,14 +89,22 @@ function App() {
 
 
 
-        <div style={{ position: "absolute", top: 10, right: 90, zIndex: 999}} >
-          <button onClick={() => setCurrentProvider("osm")}>OSM</button>
+        <div 
+          className="buttons"
+        >
+          <button onClick={(e) => setCurrentProvider("osm")}>OSM</button>
           <button onClick={() => setCurrentProvider("carto")}>CARTO</button>
           <button onClick={() => setCurrentProvider("esri")}>ESRI</button>
+          
+          {/* "Done" button */}
+          <button onClick={() => setIsDone(true)}>DONE</button>
         </div>
 
+        
 
-
+        
+        {/* conditional rendering */}
+        {!isDone && (
         <div className="sidebar">
           <h3>Favorite restaurants</h3>
           <ul>
@@ -104,6 +115,7 @@ function App() {
             ))}
           </ul>
         </div>
+        )}
 
         
 

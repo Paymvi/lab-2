@@ -50,4 +50,8 @@ my-map-app/
 
 #5
 "detectRetina={true}" increases definition
+"<Popup>" is a thing
 ".toFixed" rounds numbers
+You have to use "div className" not "div class" for valid JSX
+You can use "gap" when you use flex to add space in between buttons
+You can target the last element with "last-child"
