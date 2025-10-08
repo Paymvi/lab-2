@@ -46,3 +46,8 @@ my-map-app/
 ├─ package.json
 ├─ vite.config.js
 └─ ...
+
+
+#5
+"detectRetina={true}" increases definition
+".toFixed" rounds numbers

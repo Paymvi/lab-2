@@ -23,11 +23,19 @@ function ClickHandler( { onMapClick }){
 
 function App() {
   const [locations, setLocations] = useState([]);
-  const [currentProvider, setCurrentProvider] = useState("osm"); // This is so that the website defaults to osm, but the tile provider can be changed as well
+  const [currentProvider, setCurrentProvider] = useState("osm"); // Makes sure the website defaults to osm, but the tile provider can be changed as well
+  
 
   // Here we add to the list of locations
   const handleMapClick = (latlng) => {
-    setLocations((prev) => [...prev, {latlng}])
+
+    const info = prompt("What is your favorite restaurant around here?");
+    if (!info) return;
+
+    // We want to store both the coordinates and the info description and add it to the location list
+    const newPlace = { latlng, info }
+    setLocations((prev) => [...prev, newPlace])
+
   };
 
 
@@ -57,11 +65,10 @@ function App() {
         <MapContainer
           center={[43.03859371008897, -71.44920665422427]} // SNHU coordinates
           zoom={15.5}
-          style={{ height: '100%', width: '100%'}}
+          style={{ height: '90%', width: '90%'}}
         >
 
         {/* TileLayer defines the source of the map imagery */}
-        {/* We are using OpenStreetMap */}
         <TileLayer
           attribution={tileProviders[currentProvider].attribution}
           url={tileProviders[currentProvider].url}
@@ -73,7 +80,7 @@ function App() {
         <ClickHandler onMapClick={handleMapClick} />
         {locations.map((loc, i) => (
           <Marker key={i} position={loc.latlng}>
-            
+            <Popup>{loc.info}</Popup>
           </Marker>
         ))}
 
@@ -84,6 +91,20 @@ function App() {
           <button onClick={() => setCurrentProvider("carto")}>CARTO</button>
           <button onClick={() => setCurrentProvider("esri")}>ESRI</button>
         </div>
+
+
+
+        <div className="sidebar">
+          <h3>Favorite restaurants</h3>
+          <ul>
+            {locations.map((loc, i) => (
+              <li key={i}>
+                ({loc.latlng.lat.toFixed(2)}, {loc.latlng.lng.toFixed(2)}): {loc.info}
+              </li>
+            ))}
+          </ul>
+        </div>
+
         
 
       </MapContainer>

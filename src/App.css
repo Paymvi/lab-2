@@ -40,3 +40,19 @@
 .read-the-docs {
   color: #888;
 }
+
+
+.sidebar {
+  color: black;
+  z-index: 99999;
+  position: absolute;
+  padding-top: 70px;
+  padding-left: 10px;
+
+  /* background-color: white; */
+
+}
+
+html, body {
+    overflow: hidden;
+}
