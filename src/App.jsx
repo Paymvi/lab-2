@@ -47,47 +47,109 @@ function App() {
   const convertoC = (f) => {
     return ((f - 32) / 9/5).toFixed(1);
   }
+  const convertomph = (kph) => {
+    return (kph/1.6093446).toFixed(1);
+  }
   
+  // this old weather function was for using the NASA POWER API... but it wasn't ideal because
+  // NASA doesn't update the weather everyday.
+  // const getWeather = async (lat, lng) => {
+  //   try {
+  //     const today = new Date();
+  //     today.setDate(today.getDate() - 4);
+
+  //     const yyyy = today.getFullYear();
+  //     const mm = String(today.getMonth() + 1).padStart(2, '0')
+  //     const dd = String(today.getDate()).padStart(2, '0');
+
+  //     // You need to use backticks to interpolate variables
+  //     const dateStr = `${yyyy}${mm}${dd}`
+
+  //     const url = `https://power.larc.nasa.gov/api/temporal/daily/point?start=${dateStr}&end=${dateStr}&latitude=${lat}&longitude=${lng}&community=RE&parameters=T2M_MAX,T2M_MIN&format=JSON`;
+
+  //     const res = await fetch(url);
+  //     const data = await res.json();
+
+  //     const dailyData = data.properties.parameter;
+  //     let maxTemp = dailyData.T2M_MAX[dateStr];
+  //     let minTemp = dailyData.T2M_MIN[dateStr];
+
+  //     // If the API returned -999, mark as unknown
+  //     if (maxTemp === -999) maxTemp = "N/A";
+  //     if (minTemp === -999) minTemp = "N/A";
+
+  //     return {
+  //       maxTemp,
+  //       minTemp
+  //     }
+
+  //   } catch (err) {
+  //     console.error("Failed to fetch NASA POWER information for the weather", err);
+  //     return {
+  //       maxTemp: "N/A",
+  //       minTemp: "N/A"
+  //     };
+
+  //   }
+
+  // };
+
+  const weatherCodes = {
+  0: "Clear sky ☀️",
+  1: "Mainly clear 🌤️",
+  2: "Partly cloudy ⛅",
+  3: "Overcast ☁️",
+  45: "Fog 🌫️",
+  48: "Depositing rime fog 🌫️❄️",
+  51: "Light drizzle 🌦️",
+  53: "Moderate drizzle 🌦️",
+  55: "Dense drizzle 🌧️",
+  56: "Light freezing drizzle 🌧️❄️",
+  57: "Dense freezing drizzle 🌧️❄️",
+  61: "Slight rain 🌧️",
+  63: "Moderate rain 🌧️",
+  65: "Heavy rain 🌧️🌧️",
+  66: "Light freezing rain 🌧️❄️",
+  67: "Heavy freezing rain 🌧️❄️❄️",
+  71: "Slight snow 🌨️",
+  73: "Moderate snow 🌨️🌨️",
+  75: "Heavy snow ❄️❄️❄️",
+  77: "Snow grains ❄️",
+  80: "Slight rain showers 🌦️",
+  81: "Moderate rain showers 🌦️🌦️",
+  82: "Violent rain showers 🌧️🌧️",
+  85: "Slight snow showers 🌨️",
+  86: "Heavy snow showers ❄️❄️",
+  95: "Thunderstorm ⛈️",
+  96: "Thunderstorm with slight hail ⛈️🌨️",
+  99: "Thunderstorm with heavy hail ⛈️🌨️❄️"
+};
+
+
+
   const getWeather = async (lat, lng) => {
     try {
-      const today = new Date();
-      today.setDate(today.getDate() - 4);
-
-      const yyyy = today.getFullYear();
-      const mm = String(today.getMonth() + 1).padStart(2, '0')
-      const dd = String(today.getDate()).padStart(2, '0');
-
-      // You need to use backticks to interpolate variables
-      const dateStr = `${yyyy}${mm}${dd}`
-
-      const url = `https://power.larc.nasa.gov/api/temporal/daily/point?start=${dateStr}&end=${dateStr}&latitude=${lat}&longitude=${lng}&community=RE&parameters=T2M_MAX,T2M_MIN&format=JSON`;
-
-      const res = await fetch(url);
+      const res = await fetch (
+        `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&current_weather=true`
+      );
       const data = await res.json();
 
-      const dailyData = data.properties.parameter;
-      let maxTemp = dailyData.T2M_MAX[dateStr];
-      let minTemp = dailyData.T2M_MIN[dateStr];
-
-      // If the API returned -999, mark as unknown
-      if (maxTemp === -999) maxTemp = "N/A";
-      if (minTemp === -999) minTemp = "N/A";
-
       return {
-        maxTemp,
-        minTemp
-      }
-
-    } catch (err) {
-      console.error("Failed to fetch NASA POWER information for the weather", err);
-      return {
-        maxTemp: "N/A",
-        minTemp: "N/A"
+        temp: data.current_weather.temperature,         // Celsius
+        windspeed: data.current_weather.windspeed,      // in km/hr
+        weatherDescription: weatherCodes[data.current_weather.weathercode] || "Unknown",  // numeric weather code
       };
 
+    } catch (err) {
+
+      console.error("Failed to fetch weather info", err);
+      return { temp: "N/A", windspeed: "N/A", weatherDescription: "N/A"}
+      
     }
 
-  };
+  }
+
+
 
   const getHumanReadableInfo = async (lat, lng) => {
 
@@ -197,10 +259,6 @@ function App() {
         />
 
 
-        
-
-
-
         <ClickHandler onMapClick={handleMapClick} />
         {locations.map((loc, i) => (
           <Marker key={i} position={loc.latlng} icon={currentIcon || personaIcon}>
@@ -210,8 +268,9 @@ function App() {
               {loc.locationInfo.city}, {loc.locationInfo.state} <br/>
               {loc.locationInfo.country}
               <br/>
-              Max temp: {convertToF(loc.weather.maxTemp)}°F<br/>
-              Min temp: {convertToF(loc.weather.minTemp)}°F
+              Temp: {convertToF(loc.weather.temp)}°F<br/>
+              Windspeed: {convertomph(loc.weather.windspeed)}mph<br/>
+              Description: {loc.weather.weatherDescription}
             
             </Popup>
           </Marker>
