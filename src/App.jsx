@@ -38,8 +38,15 @@ function App() {
 
   });
 
+  const getHumanReadableInfo = async (lat, lng) => {
+    // Note: You have to use "template literals" to insert the latitude and longitude
+    const res = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`);
+    const data = await res.json();
+    return data.address.city || data.address.town || data.address.village || "Unknown place";
+  }
+
   // Here we add to the list of locations
-  const handleMapClick = (latlng) => {
+  const handleMapClick = async (latlng) => {
 
     // Stops it from marking up spot after clicking "done"
     if (isDone) return;
@@ -47,9 +54,13 @@ function App() {
     const info = prompt("What is your favorite restaurant around here?");
     if (!info) return;
 
+    const city = await getHumanReadableInfo(latlng.lat, latlng.lng);
+
+    const newPlace = { id: Date.now(), latlng, info, city }
+
     // We want to store both the coordinates and the info description and add it to the location list
-    const newPlace = { id: Date.now(), latlng, info }
     setLocations((prev) => [...prev, newPlace])
+
 
   };
 
@@ -90,6 +101,9 @@ function App() {
     }
 
   }
+
+
+
 
 
   return (
@@ -150,9 +164,11 @@ function App() {
           <ul>
             {locations.map((loc) => (
               <li key={loc.id}>
-                ({loc.latlng.lat.toFixed(2)}, {loc.latlng.lng.toFixed(2)}): {loc.info}
-                <button class="edit" onClick={(e) => {e.stopPropagation(); handleEdit(loc.id)}}>Edit</button>
-                <button class="delete" onClick={(e) => {e.stopPropagation(); handleDelete(loc.id)}}>x</button>
+
+                {/* You need {} to evaluate JSX expressions */}
+                {loc.city} : {loc.info}
+                <button className="edit" onClick={(e) => {e.stopPropagation(); handleEdit(loc.id)}}>Edit</button>
+                <button className="delete" onClick={(e) => {e.stopPropagation(); handleDelete(loc.id)}}>x</button>
               </li>
             ))}
           </ul>
