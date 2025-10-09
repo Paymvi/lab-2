@@ -55,3 +55,14 @@ my-map-app/
 You have to use "div className" not "div class" for valid JSX
 You can use "gap" when you use flex to add space in between buttons
 You can target the last element with "last-child"
+
+#6
+We use "npm run dev". and when it sees "dev" (or something like that) it looks for scripts
+dev: runs
+build: doesn't run
+lint: for debugging
+preview: lightweight debugging run
+
+What is "eslint" for?
+
+Note to self: learn more about regex

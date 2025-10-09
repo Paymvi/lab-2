@@ -3,6 +3,8 @@ import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
 import './App.css'
 
+import L from 'leaflet';
+
 import { MapContainer, TileLayer } from 'react-leaflet';
 // MapContainer: initializes and manages the Leaflet map
  
@@ -25,6 +27,16 @@ function App() {
   const [locations, setLocations] = useState([]);
   const [currentProvider, setCurrentProvider] = useState("osm"); // Makes sure the website defaults to osm, but the tile provider can be changed as well
   const [isDone, setIsDone] = useState(false);
+  
+  const [currentIcon, setCurrentIcon] = useState();
+
+  const personaIcon = L.icon({
+    iconUrl: '/pin.png',
+    iconSize: [65, 35],
+    iconAnchor: [20, 30],
+    popupAnchor: [0, -45],
+
+  });
 
   // Here we add to the list of locations
   const handleMapClick = (latlng) => {
@@ -41,7 +53,7 @@ function App() {
 
   };
 
-
+  // Stores information for the different map styles (tile providers)
   const tileProviders = {
     osm: {
       url: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
@@ -80,24 +92,32 @@ function App() {
 
         />
 
+
+        
+
+
+
         <ClickHandler onMapClick={handleMapClick} />
         {locations.map((loc, i) => (
-          <Marker key={i} position={loc.latlng}>
+          <Marker key={i} position={loc.latlng} icon={customIcon}>
             <Popup>{loc.info}</Popup>
           </Marker>
         ))}
 
 
 
-        <div 
-          className="buttons"
-        >
+        <div className="buttons">
           <button onClick={(e) => setCurrentProvider("osm")}>OSM</button>
           <button onClick={() => setCurrentProvider("carto")}>CARTO</button>
           <button onClick={() => setCurrentProvider("esri")}>ESRI</button>
           
           {/* "Done" button */}
           <button onClick={() => setIsDone(true)}>DONE</button>
+        </div>
+
+
+        <div>
+          <button onClick={() => setCurrentIcon()}></button>
         </div>
 
         

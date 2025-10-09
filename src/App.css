@@ -78,4 +78,15 @@
 
 html, body {
     overflow: hidden;
+    
+}
+
+
+/* This was added to keep the pointer when hovering over the map */
+.leaflet-container {
+  cursor: pointer !important;
+}
+
+.leaflet-dragging .leaflet-container {
+  cursor: grabbing !important;
 }
