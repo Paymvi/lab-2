@@ -48,10 +48,30 @@ function App() {
     if (!info) return;
 
     // We want to store both the coordinates and the info description and add it to the location list
-    const newPlace = { latlng, info }
+    const newPlace = { id: Date.now(), latlng, info }
     setLocations((prev) => [...prev, newPlace])
 
   };
+
+  
+  const handleEdit = (id) => {
+    const newInfo = prompt("What is your (new) fav resteraunt? ")
+    if (newInfo){
+      setLocations(prev =>
+        prev.map(loc =>
+          loc.id === id ? { ...loc, info: newInfo } : loc
+        )
+      );
+    }
+  };
+
+
+  const handleDelete = (id) => {
+    // Filter out the locations without that id
+    setLocations(prev => prev.filter(loc => loc.id !== id))
+  };
+
+
 
   // Stores information for the different map styles (tile providers)
   const tileProviders = {
@@ -99,7 +119,7 @@ function App() {
 
         <ClickHandler onMapClick={handleMapClick} />
         {locations.map((loc, i) => (
-          <Marker key={i} position={loc.latlng} icon={customIcon}>
+          <Marker key={i} position={loc.latlng} icon={currentIcon || personaIcon}>
             <Popup>{loc.info}</Popup>
           </Marker>
         ))}
@@ -128,9 +148,11 @@ function App() {
         <div className="sidebar">
           <h3>Favorite restaurants</h3>
           <ul>
-            {locations.map((loc, i) => (
-              <li key={i}>
+            {locations.map((loc) => (
+              <li key={loc.id}>
                 ({loc.latlng.lat.toFixed(2)}, {loc.latlng.lng.toFixed(2)}): {loc.info}
+                <button class="edit" onClick={(e) => {e.stopPropagation(); handleEdit(loc.id)}}>Edit</button>
+                <button class="delete" onClick={(e) => {e.stopPropagation(); handleDelete(loc.id)}}>x</button>
               </li>
             ))}
           </ul>

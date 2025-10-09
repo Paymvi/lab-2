@@ -90,3 +90,26 @@ html, body {
 .leaflet-dragging .leaflet-container {
   cursor: grabbing !important;
 }
+
+
+.sidebar button {
+  pointer-events: auto;
+}
+
+
+/* Note: margin is space, padding is the actual content still */
+
+.edit{
+  color: white;
+  margin-left: 5px;
+  margin-bottom: 3px;
+  height: 25px;
+  font-size: x-small;
+}
+
+.delete{
+  background-color: red;
+  margin-left: 2px;
+  height: 25px;
+  font-size: x-small;
+}

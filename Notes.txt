@@ -66,3 +66,10 @@ preview: lightweight debugging run
 What is "eslint" for?
 
 Note to self: learn more about regex
+
+
+#7
+How to pull the latest commit and override local changes
+git fetch origin
+git reset --hard origin/main
+git clean -fd
