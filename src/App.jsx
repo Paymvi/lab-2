@@ -38,11 +38,80 @@ function App() {
 
   });
 
+  
+  // It is good idea to use try catches when using APIs in case there is not info returned
+
+  const convertToF = (c) => {
+    return ((c * 9/5) + 32).toFixed(1);
+  }
+  const convertoC = (f) => {
+    return ((f - 32) / 9/5).toFixed(1);
+  }
+  
+  const getWeather = async (lat, lng) => {
+    try {
+      const today = new Date();
+      today.setDate(today.getDate() - 4);
+
+      const yyyy = today.getFullYear();
+      const mm = String(today.getMonth() + 1).padStart(2, '0')
+      const dd = String(today.getDate()).padStart(2, '0');
+
+      // You need to use backticks to interpolate variables
+      const dateStr = `${yyyy}${mm}${dd}`
+
+      const url = `https://power.larc.nasa.gov/api/temporal/daily/point?start=${dateStr}&end=${dateStr}&latitude=${lat}&longitude=${lng}&community=RE&parameters=T2M_MAX,T2M_MIN&format=JSON`;
+
+      const res = await fetch(url);
+      const data = await res.json();
+
+      const dailyData = data.properties.parameter;
+      let maxTemp = dailyData.T2M_MAX[dateStr];
+      let minTemp = dailyData.T2M_MIN[dateStr];
+
+      // If the API returned -999, mark as unknown
+      if (maxTemp === -999) maxTemp = "N/A";
+      if (minTemp === -999) minTemp = "N/A";
+
+      return {
+        maxTemp,
+        minTemp
+      }
+
+    } catch (err) {
+      console.error("Failed to fetch NASA POWER information for the weather", err);
+      return {
+        maxTemp: "N/A",
+        minTemp: "N/A"
+      };
+
+    }
+
+  };
+
   const getHumanReadableInfo = async (lat, lng) => {
-    // Note: You have to use "template literals" to insert the latitude and longitude
-    const res = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`);
-    const data = await res.json();
-    return data.address.city || data.address.town || data.address.village || "Unknown place";
+
+    try {
+      // Note: You have to use "template literals" to insert the latitude and longitude
+      const res = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`);
+      const data = await res.json();
+
+      return {
+        city: data.address.city || data.address.town || data.address.village || "Unknown place",
+        state: data.address.state || "Unknown",
+        country: data.address.country || "Unknown",
+        postcode: data.address.postcode || "N/A"
+      }
+
+    } catch (err){
+
+      console.error("Failed to fetch location info:", err);
+      return { city: "Unknown", state: "Unknown", country: "Unknown", postcode: "Unknown"}
+
+    }
+    
+
+  
   }
 
   // Here we add to the list of locations
@@ -54,9 +123,10 @@ function App() {
     const info = prompt("What is your favorite restaurant around here?");
     if (!info) return;
 
-    const city = await getHumanReadableInfo(latlng.lat, latlng.lng);
+    const locationInfo = await getHumanReadableInfo(latlng.lat, latlng.lng);
+    const weather = await getWeather(latlng.lat, latlng.lng);
 
-    const newPlace = { id: Date.now(), latlng, info, city }
+    const newPlace = { id: Date.now(), latlng, info, locationInfo, weather }
 
     // We want to store both the coordinates and the info description and add it to the location list
     setLocations((prev) => [...prev, newPlace])
@@ -134,7 +204,16 @@ function App() {
         <ClickHandler onMapClick={handleMapClick} />
         {locations.map((loc, i) => (
           <Marker key={i} position={loc.latlng} icon={currentIcon || personaIcon}>
-            <Popup>{loc.info}</Popup>
+            <Popup>
+              <strong>{loc.info}</strong>
+              <br/>
+              {loc.locationInfo.city}, {loc.locationInfo.state} <br/>
+              {loc.locationInfo.country}
+              <br/>
+              Max temp: {convertToF(loc.weather.maxTemp)}°F<br/>
+              Min temp: {convertToF(loc.weather.minTemp)}°F
+            
+            </Popup>
           </Marker>
         ))}
 
@@ -166,7 +245,7 @@ function App() {
               <li key={loc.id}>
 
                 {/* You need {} to evaluate JSX expressions */}
-                {loc.city} : {loc.info}
+                {loc.locationInfo.city}, {loc.locationInfo.state} : {loc.info}
                 <button className="edit" onClick={(e) => {e.stopPropagation(); handleEdit(loc.id)}}>Edit</button>
                 <button className="delete" onClick={(e) => {e.stopPropagation(); handleDelete(loc.id)}}>x</button>
               </li>
