@@ -150,6 +150,93 @@ function App() {
   }
 
 
+  // I prompted ChatGPT to make this function with these requirements:
+  // - It needs to receive an input of coordinates... NOT the name of the city
+  // - It needs to locate the NEAREST city (not just a nearby city)
+  // - It needs to use wikipedia was a fallback in case wikidata doesn't have a description
+  // - There must be built in error checking
+  // Note: Chatgpt was helpful because I did not have prior knowledge of sparql queries
+  const getWikidataInfoByCoords = async (lat, lon) => {
+    const endpoint = "https://query.wikidata.org/sparql";
+
+    // SPARQL query — finds the *nearest* human settlement
+    const query = `
+      SELECT ?place ?placeLabel ?description ?population ?image ?wikiTitle ?distance WHERE {
+        SERVICE wikibase:around {
+          ?place wdt:P625 ?location .
+          bd:serviceParam wikibase:center "Point(${lon} ${lat})"^^geo:wktLiteral .
+          bd:serviceParam wikibase:radius "20" .   # search radius (km)
+          bd:serviceParam wikibase:distance ?distance .
+        }
+        ?place wdt:P31/wdt:P279* wd:Q486972 .      # instance of human settlement
+        OPTIONAL { ?place wdt:P1082 ?population. }
+        OPTIONAL { ?place wdt:P18 ?image. }
+        OPTIONAL {
+          ?article schema:about ?place ;
+                  schema:isPartOf <https://en.wikipedia.org/> ;
+                  schema:name ?wikiTitle .
+        }
+        SERVICE wikibase:label { bd:serviceParam wikibase:language "en". }
+      }
+      ORDER BY ASC(?distance)
+      LIMIT 1
+    `;
+
+    try {
+      const res = await fetch(`${endpoint}?query=${encodeURIComponent(query)}&format=json`);
+      const data = await res.json();
+
+      if (!data.results.bindings.length) {
+        return {
+          title: "Unknown place",
+          description: "No info found",
+          population: "Unknown",
+          image: null
+        };
+      }
+
+      const result = data.results.bindings[0];
+      let description = result.description?.value || "No description available";
+
+      // Wikipedia fallback if description is missing
+      if (description === "No description available" && result.wikiTitle?.value) {
+        const wikiTitle = result.wikiTitle.value;
+        try {
+          const wikiRes = await fetch(
+            `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(wikiTitle)}`
+          );
+          const wikiData = await wikiRes.json();
+          if (wikiData.extract) description = wikiData.extract;
+        } catch (wikiErr) {
+          console.warn("Wikipedia summary fallback failed:", wikiErr);
+        }
+      }
+
+      return {
+        title: result.placeLabel?.value || "Unknown",
+        description,
+        population: result.population?.value
+          ? Number(result.population.value).toLocaleString()
+          : "Unknown",
+        image: result.image?.value || null,
+        distanceKm: result.distance ? parseFloat(result.distance.value).toFixed(2) : null
+      };
+
+    } catch (err) {
+      console.error("Failed to fetch Wikidata info by coords:", err);
+      return {
+        title: "Unknown",
+        description: "No info found",
+        population: "Unknown",
+        image: null
+      };
+    }
+  };
+
+
+
+
+
 
   const getHumanReadableInfo = async (lat, lng) => {
 
@@ -172,9 +259,8 @@ function App() {
 
     }
     
-
-  
   }
+
 
   // Here we add to the list of locations
   const handleMapClick = async (latlng) => {
@@ -187,8 +273,12 @@ function App() {
 
     const locationInfo = await getHumanReadableInfo(latlng.lat, latlng.lng);
     const weather = await getWeather(latlng.lat, latlng.lng);
+    // const wikiInfo = await getWikiSummary(locationInfo.city);
 
-    const newPlace = { id: Date.now(), latlng, info, locationInfo, weather }
+    // I want to pass in coordinates not just the city name so it is specific and accurate
+    const wiki = await getWikidataInfoByCoords(latlng.lat, latlng.lng);
+
+    const newPlace = { id: Date.now(), latlng, info, locationInfo, weather, wiki }
 
     // We want to store both the coordinates and the info description and add it to the location list
     setLocations((prev) => [...prev, newPlace])
@@ -265,13 +355,17 @@ function App() {
             <Popup>
               <strong>{loc.info}</strong>
               <br/>
-              {loc.locationInfo.city}, {loc.locationInfo.state} <br/>
-              {loc.locationInfo.country}
+              {loc.locationInfo?.city}, {loc.locationInfo?.state} <br/>
+              {loc.locationInfo?.country}
               <br/>
-              Temp: {convertToF(loc.weather.temp)}°F<br/>
-              Windspeed: {convertomph(loc.weather.windspeed)}mph<br/>
-              Description: {loc.weather.weatherDescription}
-            
+              Temp: {convertToF(loc.weather?.temp)}°F<br/>
+              Windspeed: {convertomph(loc.weather?.windspeed)}mph<br/>
+              Weather: {loc.weather?.weatherDescription}<br/>
+
+              Population: {loc.wiki.population}<br/><br/>
+              {loc.wiki.image && <img src={loc.wiki.image} alt={loc.wiki.title} width="150" />}<br/>
+              {loc.wiki.description}<br/>
+              
             </Popup>
           </Marker>
         ))}
