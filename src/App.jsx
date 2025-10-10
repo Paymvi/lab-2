@@ -1,27 +1,26 @@
 import { useState } from 'react'
 import './App.css'
-
 import L from 'leaflet';
-
-import { MapContainer, TileLayer } from 'react-leaflet';
-// MapContainer: initializes and manages the Leaflet map
- 
+import { MapContainer, TileLayer } from 'react-leaflet';  // initializes and manages the Leaflet map 
 import {  Marker, Popup, useMapEvents } from 'react-leaflet';
 
-// Note... clickhandler is outside app
+
+
 function ClickHandler( { onMapClick }){
     useMapEvents({
 
       // e stands for "event" and is the convention in JavaScript
-      // We are taking the latitude and longitude of the click and passing it to the "handleMapClick" function
+      // This takes the latitude and longitude of the click and passing it to "handleMapClick"
       click(e) {
         onMapClick(e.latlng);
       }
     });
     return null;
-  }
+}
 
 function App() {
+
+  
   const [locations, setLocations] = useState([]);
   const [currentProvider, setCurrentProvider] = useState("osm"); // Makes sure the website defaults to osm, but the tile provider can be changed as well
   const [isDone, setIsDone] = useState(false);
@@ -36,9 +35,8 @@ function App() {
     popupAnchor: [0, -45],
 
   });
-
   
-  
+  // Functions to convert metric to imperial and vice versa
   const convertToF = (c) => {
     return ((c * 9/5) + 32).toFixed(1);
   }
@@ -48,8 +46,9 @@ function App() {
   const convertomph = (kph) => {
     return (kph/1.6093446).toFixed(1);
   }
-  
 
+
+  // For converting weather codes to weather descriptions
   const weatherCodes = {
   0: "Clear sky ☀️",
   1: "Mainly clear 🌤️",
@@ -82,8 +81,8 @@ function App() {
 };
 
 
-// It is good idea to use try catches when using APIs in case there is not info returned
 
+  // Fetches weather info
   const getWeather = async (lat, lng) => {
     try {
       const res = await fetch (
@@ -116,7 +115,7 @@ function App() {
   const getWikidataInfoByCoords = async (lat, lon) => {
     const endpoint = "https://query.wikidata.org/sparql";
 
-    // SPARQL query — finds the *nearest* human settlement
+    // SPARQL query: finds the nearest human settlement
     const query = `
       SELECT ?place ?placeLabel ?description ?population ?image ?wikiTitle ?distance WHERE {
         SERVICE wikibase:around {
@@ -194,7 +193,7 @@ function App() {
 
 
 
-
+  // Fetches location information
   const getHumanReadableInfo = async (lat, lng) => {
 
     try {
@@ -210,7 +209,6 @@ function App() {
       }
 
     } catch (err){
-
       console.error("Failed to fetch location info:", err);
       return { city: "Unknown", state: "Unknown", country: "Unknown", postcode: "Unknown"}
 
@@ -226,11 +224,13 @@ function App() {
     // Stops it from marking up spot after clicking "done"
     if (isDone) return;
 
+
     const info = prompt("What is your favorite restaurant around here?");
     if (!info) return;
 
     // Get the main/basic info fast
     const basicInfo = await getHumanReadableInfo(latlng.lat, latlng.lng);
+
 
     // Make temporary maker
     const newPlace = {
@@ -246,10 +246,26 @@ function App() {
     // Add this information immediately to the map
     setLocations((prev) => [...prev, newPlace]);
 
+    // Check Wi-Fi before making API calls (is there is none, have an error message)
+    if (!navigator.onLine) {
+      setLocations((prev) =>
+        prev.map((loc) =>
+          loc.id === newPlace.id
+            ? {
+                ...loc,
+                loading: false,
+                // Note: notice how there is a new variable that stores error messages
+                error: "Cannot retrieve information... \ncheck your Wi-Fi connection.",
+              }
+            : loc
+        )
+      );
+      return; // stop here, don’t call APIs
+    }
+  
     // Fetch the slower stuff in the background
     try {
       const [weather, wiki] = await Promise.all([
-        // getHumanReadableInfo(latlng.lat, latlng.lng),
         getWeather(latlng.lat, latlng.lng),
         getWikidataInfoByCoords(latlng.lat, latlng.lng)
       ]);
@@ -277,6 +293,7 @@ function App() {
   };
 
   
+  // Adds the edit and delete buttons next to the side bar elements
   const handleEdit = (id) => {
     const newInfo = prompt("What is your (new) fav resteraunt? ")
     if (newInfo){
@@ -287,8 +304,6 @@ function App() {
       );
     }
   };
-
-
   const handleDelete = (id) => {
     // Filter out the locations without that id
     setLocations(prev => prev.filter(loc => loc.id !== id))
@@ -344,20 +359,26 @@ function App() {
           <Marker key={i} position={loc.latlng} icon={currentIcon || personaIcon}>
             <Popup>
               <strong>{loc.info}</strong>
+
               <br/>
               {loc.locationInfo?.city}, {loc.locationInfo?.state} <br/>
               {loc.locationInfo?.country}
               <br/>
 
-
-              {loc.loading ? (
+              {/* Shows loading screen until the rest of the information is returned */}
+              {loc.error ? (
+                <p className="error" style={{ fontStyle: "italic", whiteSpace: "pre-line"}}>{loc.error}</p>
+              ) : loc.loading ? (
                 <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
                   <div className="spinner" />
                   <em>Loading more info 👀...</em>
                 </div>
                 
               ) : (
+
                 <>
+
+
                   {loc.weather && (
                     <>
                     Temp: {convertToF(loc.weather?.temp)}°F<br/>
@@ -385,25 +406,19 @@ function App() {
         ))}
 
 
-
+        {/* Buttons for the different tile providers */}
         <div className="buttons">
-          <button onClick={(e) => setCurrentProvider("osm")}>OSM</button>
-          <button onClick={() => setCurrentProvider("carto")}>CARTO</button>
-          <button onClick={() => setCurrentProvider("esri")}>ESRI</button>
+          <button onClick={(e) => setCurrentProvider("osm")}>Original</button>
+          <button onClick={() => setCurrentProvider("carto")}>Greyscale</button>
+          <button onClick={() => setCurrentProvider("esri")}>Satellite</button>
           
           {/* "Done" button */}
           <button onClick={() => setIsDone(true)}>DONE</button>
         </div>
 
-
-        <div>
-          <button onClick={() => setCurrentIcon()}></button>
-        </div>
-
         
-
         
-        {/* conditional rendering */}
+        {/* Conditional rendering */}
         {!isDone && (
         <div className="sidebar">
           <h3>Favorite restaurants</h3>

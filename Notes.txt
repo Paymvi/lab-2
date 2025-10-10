@@ -78,11 +78,19 @@ git reset --hard origin/main
 git clean -fd
 
 #9
+It is good idea to use try catches when using APIs in case there is not info returned
+
+#10
 NASA does not update their weather API everyday and it is limited
 You have to query for data from 3 days ago, which is not ideal, and this was why I switched to 
 a different API (Open-Meteo)
 
-#10
+#11
 Now that I am calling multiple API's it takes a long time for content to load.
-I will run calls in parallel to shorten the load time and I will add a loading icon
+I will run calls in parallel to shorten the load time and will add a loading spinner
 to show the user that it is processing.
+(Update) I have also added a lazy load feature so that it loads the basic information first then loads other information later.
+
+
+#12
+Add message if there is no wifi

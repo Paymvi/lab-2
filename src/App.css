@@ -82,11 +82,11 @@ html, body {
 }
 
 
-/* This was added to keep the pointer when hovering over the map */
+/* This was added to keep the pointer (not the grab) when hovering over the map */
 .leaflet-container {
   cursor: pointer !important;
 }
-
+/* When actually grabbing/dragging the screen... return to the grab icon */
 .leaflet-dragging .leaflet-container {
   cursor: grabbing !important;
 }
@@ -98,7 +98,6 @@ html, body {
 
 
 /* Note: margin is space, padding is the actual content still */
-
 .edit{
   color: white;
   margin-left: 5px;
@@ -130,3 +129,6 @@ html, body {
   100% { transform: rotate(360deg); }
 }
 
+.error {
+  color:#db3434
+}
