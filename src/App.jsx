@@ -1,6 +1,4 @@
 import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
 import './App.css'
 
 import L from 'leaflet';
@@ -27,6 +25,7 @@ function App() {
   const [locations, setLocations] = useState([]);
   const [currentProvider, setCurrentProvider] = useState("osm"); // Makes sure the website defaults to osm, but the tile provider can be changed as well
   const [isDone, setIsDone] = useState(false);
+
   
   const [currentIcon, setCurrentIcon] = useState();
 
@@ -39,8 +38,7 @@ function App() {
   });
 
   
-  // It is good idea to use try catches when using APIs in case there is not info returned
-
+  
   const convertToF = (c) => {
     return ((c * 9/5) + 32).toFixed(1);
   }
@@ -51,48 +49,6 @@ function App() {
     return (kph/1.6093446).toFixed(1);
   }
   
-  // this old weather function was for using the NASA POWER API... but it wasn't ideal because
-  // NASA doesn't update the weather everyday.
-  // const getWeather = async (lat, lng) => {
-  //   try {
-  //     const today = new Date();
-  //     today.setDate(today.getDate() - 4);
-
-  //     const yyyy = today.getFullYear();
-  //     const mm = String(today.getMonth() + 1).padStart(2, '0')
-  //     const dd = String(today.getDate()).padStart(2, '0');
-
-  //     // You need to use backticks to interpolate variables
-  //     const dateStr = `${yyyy}${mm}${dd}`
-
-  //     const url = `https://power.larc.nasa.gov/api/temporal/daily/point?start=${dateStr}&end=${dateStr}&latitude=${lat}&longitude=${lng}&community=RE&parameters=T2M_MAX,T2M_MIN&format=JSON`;
-
-  //     const res = await fetch(url);
-  //     const data = await res.json();
-
-  //     const dailyData = data.properties.parameter;
-  //     let maxTemp = dailyData.T2M_MAX[dateStr];
-  //     let minTemp = dailyData.T2M_MIN[dateStr];
-
-  //     // If the API returned -999, mark as unknown
-  //     if (maxTemp === -999) maxTemp = "N/A";
-  //     if (minTemp === -999) minTemp = "N/A";
-
-  //     return {
-  //       maxTemp,
-  //       minTemp
-  //     }
-
-  //   } catch (err) {
-  //     console.error("Failed to fetch NASA POWER information for the weather", err);
-  //     return {
-  //       maxTemp: "N/A",
-  //       minTemp: "N/A"
-  //     };
-
-  //   }
-
-  // };
 
   const weatherCodes = {
   0: "Clear sky ☀️",
@@ -126,6 +82,7 @@ function App() {
 };
 
 
+// It is good idea to use try catches when using APIs in case there is not info returned
 
   const getWeather = async (lat, lng) => {
     try {
@@ -263,6 +220,7 @@ function App() {
 
 
   // Here we add to the list of locations
+  // This uses lazy load
   const handleMapClick = async (latlng) => {
 
     // Stops it from marking up spot after clicking "done"
@@ -271,17 +229,49 @@ function App() {
     const info = prompt("What is your favorite restaurant around here?");
     if (!info) return;
 
-    const locationInfo = await getHumanReadableInfo(latlng.lat, latlng.lng);
-    const weather = await getWeather(latlng.lat, latlng.lng);
-    // const wikiInfo = await getWikiSummary(locationInfo.city);
+    // Get the main/basic info fast
+    const basicInfo = await getHumanReadableInfo(latlng.lat, latlng.lng);
 
-    // I want to pass in coordinates not just the city name so it is specific and accurate
-    const wiki = await getWikidataInfoByCoords(latlng.lat, latlng.lng);
+    // Make temporary maker
+    const newPlace = {
+      id: Date.now(),
+      latlng,
+      info,
+      locationInfo: basicInfo,
+      weather: null,
+      wiki: null,
+      loading: true
+    }
 
-    const newPlace = { id: Date.now(), latlng, info, locationInfo, weather, wiki }
+    // Add this information immediately to the map
+    setLocations((prev) => [...prev, newPlace]);
 
-    // We want to store both the coordinates and the info description and add it to the location list
-    setLocations((prev) => [...prev, newPlace])
+    // Fetch the slower stuff in the background
+    try {
+      const [weather, wiki] = await Promise.all([
+        // getHumanReadableInfo(latlng.lat, latlng.lng),
+        getWeather(latlng.lat, latlng.lng),
+        getWikidataInfoByCoords(latlng.lat, latlng.lng)
+      ]);
+      setLocations((prev) =>
+        prev.map((loc) =>
+          loc.id === newPlace.id
+          ? {...loc, weather, wiki, loading: false}
+          : loc
+        )
+      );
+
+    } catch (err) {
+      console.error("Error loading the extra info", err);
+        setLocations((prev) =>
+          prev.map((loc) =>
+            loc.id === newPlace.id
+            ? { ...loc, weather: null, wiki: null, loading: false}
+            : loc
+        )
+      );
+
+    }
 
 
   };
@@ -358,13 +348,37 @@ function App() {
               {loc.locationInfo?.city}, {loc.locationInfo?.state} <br/>
               {loc.locationInfo?.country}
               <br/>
-              Temp: {convertToF(loc.weather?.temp)}°F<br/>
-              Windspeed: {convertomph(loc.weather?.windspeed)}mph<br/>
-              Weather: {loc.weather?.weatherDescription}<br/>
 
-              Population: {loc.wiki.population}<br/><br/>
-              {loc.wiki.image && <img src={loc.wiki.image} alt={loc.wiki.title} width="150" />}<br/>
-              {loc.wiki.description}<br/>
+
+              {loc.loading ? (
+                <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                  <div className="spinner" />
+                  <em>Loading more info 👀...</em>
+                </div>
+                
+              ) : (
+                <>
+                  {loc.weather && (
+                    <>
+                    Temp: {convertToF(loc.weather?.temp)}°F<br/>
+                    Windspeed: {convertomph(loc.weather?.windspeed)}mph<br/>
+                    Weather: {loc.weather?.weatherDescription}<br/>
+                    </>
+                  )}
+                
+                {loc.wiki &&
+                  <>
+                  Population: {loc.wiki?.population}<br/><br/>
+                  {loc.wiki?.image && <img src={loc.wiki?.image} alt={loc.wiki?.title} width="150" />}<br/>
+                  {loc.wiki?.description}<br/>
+                  </>
+                }
+
+                </>
+
+              )}
+
+              
               
             </Popup>
           </Marker>

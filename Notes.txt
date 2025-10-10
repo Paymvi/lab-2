@@ -56,7 +56,7 @@ You have to use "div className" not "div class" for valid JSX
 You can use "gap" when you use flex to add space in between buttons
 You can target the last element with "last-child"
 
-#6
+#6 (class notes)
 We use "npm run dev". and when it sees "dev" (or something like that) it looks for scripts
 dev: runs
 build: doesn't run
@@ -64,12 +64,25 @@ lint: for debugging
 preview: lightweight debugging run
 
 What is "eslint" for?
-
 Note to self: learn more about regex
 
-
 #7
+Having the grab icon makes it hard for the user to be precise.
+So I used edited the CSS so it is a pointer by default and then grabs
+when it is being dragged.
+
+#8
 How to pull the latest commit and override local changes
 git fetch origin
 git reset --hard origin/main
 git clean -fd
+
+#9
+NASA does not update their weather API everyday and it is limited
+You have to query for data from 3 days ago, which is not ideal, and this was why I switched to 
+a different API (Open-Meteo)
+
+#10
+Now that I am calling multiple API's it takes a long time for content to load.
+I will run calls in parallel to shorten the load time and I will add a loading icon
+to show the user that it is processing.
