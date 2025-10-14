@@ -205,7 +205,7 @@ function App() {
         city: data.address.city || data.address.town || data.address.village || "Unknown place",
         state: data.address.state || "Unknown",
         country: data.address.country || "Unknown",
-        postcode: data.address.postcode || "N/A"
+        // postcode: data.address.postcode || "N/A"
       }
 
     } catch (err){
@@ -353,6 +353,8 @@ function App() {
 
         />
 
+        <div className="locations"></div>
+
 
         <ClickHandler onMapClick={handleMapClick} />
         {locations.map((loc, i) => (
@@ -389,7 +391,7 @@ function App() {
                 
                 {loc.wiki &&
                   <>
-                  Population: {loc.wiki?.population}<br/><br/>
+                  Population: {loc.wiki?.population} people<br/><br/>
                   {loc.wiki?.image && <img src={loc.wiki?.image} alt={loc.wiki?.title} width="150" />}<br/>
                   {loc.wiki?.description}<br/>
                   </>

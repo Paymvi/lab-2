@@ -1,3 +1,6 @@
+@import url("https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:ital,wght@0,200..800;1,200..800&display=swap");
+
+
 #root {
   max-width: 1280px;
   margin: 0 auto;
@@ -131,4 +134,10 @@ html, body {
 
 .error {
   color:#db3434
+}
+
+
+* {
+    font-family: "Atkinson Hyperlegible Next", sans-serif; /* Imported from Google Fonts */
+    
 }
