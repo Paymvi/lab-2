@@ -17,3 +17,5 @@ export default defineConfig({
   base: './',
   plugins: [react()],
 });
+
+// did npm run build and tested with npm serve dist
