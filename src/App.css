@@ -52,8 +52,6 @@
   padding-top: 70px;
   padding-left: 10px;
 
-  /* background-color: white; */
-
 }
 
 .buttons {
@@ -61,14 +59,14 @@
   gap: 12px;
   position: absolute;
   top: 25px;
-  left: 49.5%;
-  transform: translateX(-128%);
+  left: 4.5%;
   z-index: 999;
   pointer-events: auto;
   background: rgba(255, 255, 255, 0.5); /* added some transparency */
   padding: 10px 20px;
   border-radius: 12px;
   box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  flex-wrap: wrap;
 }
 
 /* All buttons inside container */
