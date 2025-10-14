@@ -57,6 +57,35 @@
 }
 
 .buttons {
+  display: flex;
+  gap: 12px;
+  position: absolute;
+  top: 25px;
+  left: 49.5%;
+  transform: translateX(-153%);
+  z-index: 999;
+  pointer-events: auto;
+  background: rgba(255, 255, 255, 0.5); /* added some transparency */
+  padding: 10px 20px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
+/* All buttons inside container */
+.buttons button {
+  padding: 5px 14px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  background-color: #464646;
+  color: white;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+}
+/* 
+.buttons {
 
   display: flex;
   gap: 10px;
@@ -67,15 +96,28 @@
   z-Index: 999;
   pointer-events: auto;
 
-}
+} */
 
 .buttons button:last-child {
 
-    background-color: white;
+    background-color: rgb(254, 254, 254);
     color: black;
     border-color: black;
     border-width: 2px;
 
+}
+
+
+.buttons button:hover {
+  background-color: #707070;
+  transform: translateY(-1px); /* subtle lift on hover */
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  transition: all 0.12s ease;
+}
+.buttons button:last-child:hover {
+  background-color: #ffffff;
+  /* color: white; */
+  transform: translateY(-1px);
 }
 
 
@@ -136,8 +178,103 @@ html, body {
   color:#db3434
 }
 
-
+/* Used the same font from lab-1 */
 * {
     font-family: "Atkinson Hyperlegible Next", sans-serif; /* Imported from Google Fonts */
-    
+}
+
+
+/* Sidebar container */
+.sidebar {
+  position: absolute;
+  top: 85px;
+  left: 20px;
+  /* Made the width slightly bigger to handle the scrollbar */
+  width: 236px;
+  max-height: 80vh;
+  overflow-y: auto;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.25);
+  padding: 20px;
+  transition: all 0.3s ease;
+
+}
+
+.sidebar h3 {
+  text-align: center;
+  margin-top: 0;
+  margin-bottom: 12px;
+  color: #333;
+  font-size: 1.1rem;
+  border-bottom: 1px solid #ddd;
+  padding-bottom: 8px;
+}
+
+.empty {
+  color: #888;
+  font-style: italic;
+  text-align: center;
+  margin: 10px 0;
+}
+
+/* Each dropdown item */
+.restaurant-item {
+  background: #f9f9f9;
+  border-radius: 10px;
+  margin-bottom: 10px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  padding: 8px 10px;
+  transition: transform 0.2s ease;
+}
+.restaurant-item:hover {
+  transform: scale(1.02);
+}
+
+.restaurant-item summary {
+  font-weight: 500;
+  outline: none;
+}
+
+/* Action buttons */
+.actions {
+  display: flex;
+  /* Buttons are easier access if they stay on the right side */
+  justify-content: flex-end;
+  gap: 2px;
+  margin-top: 8px;
+}
+
+button.edit, button.delete {
+  border: none;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 0.8rem;
+}
+
+button.edit {
+  background-color: #4CAF50;
+  color: white;
+}
+button.delete {
+  background-color: #f44336;
+  color: white;
+}
+
+/* To make the buttons darker when you hover */
+button.edit:hover {
+  background-color: #45a049;
+}
+button.delete:hover {
+  background-color: #d32f2f;
+}
+
+/* Scrollbar styling */
+/* ChatGPT helped teach me webkit */
+.sidebar::-webkit-scrollbar {
+  width: 6px;
+}
+.sidebar::-webkit-scrollbar-thumb {
+  background-color: #bbb;
+  border-radius: 3px;
 }

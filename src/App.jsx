@@ -383,15 +383,16 @@ function App() {
 
                   {loc.weather && (
                     <>
-                    Temp: {convertToF(loc.weather?.temp)}°F<br/>
-                    Windspeed: {convertomph(loc.weather?.windspeed)}mph<br/>
-                    Weather: {loc.weather?.weatherDescription}<br/>
+                    <br/>
+                    <strong>Temp:</strong> {convertToF(loc.weather?.temp)}°F<br/>
+                    <strong>Windspeed:</strong> {convertomph(loc.weather?.windspeed)}mph<br/>
+                    <strong>Weather:</strong> {loc.weather?.weatherDescription}<br/>
                     </>
                   )}
                 
                 {loc.wiki &&
                   <>
-                  Population: {loc.wiki?.population} people<br/><br/>
+                  <strong>Population:</strong> {loc.wiki?.population} people<br/><br/>
                   {loc.wiki?.image && <img src={loc.wiki?.image} alt={loc.wiki?.title} width="150" />}<br/>
                   {loc.wiki?.description}<br/>
                   </>
@@ -415,28 +416,51 @@ function App() {
           <button onClick={() => setCurrentProvider("esri")}>Satellite</button>
           
           {/* "Done" button */}
-          <button onClick={() => setIsDone(true)}>DONE</button>
+          <button onClick={() => setIsDone(true)}>Done</button>
         </div>
 
         
         
         {/* Conditional rendering */}
         {!isDone && (
-        <div className="sidebar">
-          <h3>Favorite restaurants</h3>
-          <ul>
-            {locations.map((loc) => (
-              <li key={loc.id}>
+          <div className="sidebar">
+            <h3>🍴 Favorite Restaurants 🍴</h3>
 
-                {/* You need {} to evaluate JSX expressions */}
-                {loc.locationInfo.city}, {loc.locationInfo.state} : {loc.info}
-                <button className="edit" onClick={(e) => {e.stopPropagation(); handleEdit(loc.id)}}>Edit</button>
-                <button className="delete" onClick={(e) => {e.stopPropagation(); handleDelete(loc.id)}}>x</button>
-              </li>
-            ))}
-          </ul>
-        </div>
+            <div className="restaurant-list">
+              {locations.length === 0 ? (
+                <p className="empty">Click on the map to add a favorite!!!</p>
+              ) : (
+                locations.map((loc) => (
+                  <div key={loc.id} className="restaurant-item">
+
+                    <span className="restaurant-info">
+                      <strong style={{ fontSize: ".79rem" }}>{loc.info}</strong><br/>
+                      {loc.locationInfo.city}, {loc.locationInfo.state}
+                    </span>
+
+                    <span className="actions">
+                      <button
+                        className="edit"
+                        onClick={() => handleEdit(loc.id)}
+                      >
+                        Edit
+                      </button>
+                      <button
+                        className="delete"
+                        onClick={() => handleDelete(loc.id)}
+                      >
+                        Delete
+                      </button>
+
+                    </span>
+
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
         )}
+
 
         
 
