@@ -329,6 +329,16 @@ function App() {
 
   }
 
+  // For the reset button
+  const handleReset = () => {
+
+    if (window.confirm("Are you sure you want to reset? (It will delete all locations)")){
+      setLocations([]);
+      setIsDone(false);
+    }
+
+  }
+
 
 
 
@@ -416,7 +426,10 @@ function App() {
           <button onClick={() => setCurrentProvider("esri")}>Satellite</button>
           
           {/* "Done" button */}
-          <button onClick={() => setIsDone(true)}>Done</button>
+          <button onClick={() => setIsDone(true)} className="white">Done</button>
+
+          {/* "Reset" button */}
+          <button onClick={handleReset} className="white">Reset</button>
         </div>
 
         

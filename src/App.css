@@ -62,7 +62,7 @@
   position: absolute;
   top: 25px;
   left: 49.5%;
-  transform: translateX(-153%);
+  transform: translateX(-128%);
   z-index: 999;
   pointer-events: auto;
   background: rgba(255, 255, 255, 0.5); /* added some transparency */
@@ -84,21 +84,8 @@
   color: white;
   box-shadow: 0 2px 5px rgba(0,0,0,0.15);
 }
-/* 
-.buttons {
 
-  display: flex;
-  gap: 10px;
-
-  position: absolute;
-  padding: 20px;
-  padding-left: 60px;
-  z-Index: 999;
-  pointer-events: auto;
-
-} */
-
-.buttons button:last-child {
+.buttons button.white {
 
     background-color: rgb(254, 254, 254);
     color: black;
@@ -114,9 +101,8 @@
   box-shadow: 0 4px 10px rgba(0,0,0,0.1);
   transition: all 0.12s ease;
 }
-.buttons button:last-child:hover {
+.buttons button.white {
   background-color: #ffffff;
-  /* color: white; */
   transform: translateY(-1px);
 }
 
@@ -198,6 +184,7 @@ html, body {
   box-shadow: 0 4px 15px rgba(0,0,0,0.25);
   padding: 20px;
   transition: all 0.3s ease;
+  pointer-events: auto;
 
 }
 
