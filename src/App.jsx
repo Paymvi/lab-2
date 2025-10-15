@@ -356,8 +356,8 @@ function App() {
     
         {/* This is where the map lives */}
         <MapContainer
-          center={[43.03859371008897, -71.44920665422427]} // SNHU coordinates
-          zoom={15.5}
+          center={[42.95042318603224, -71.51552439254539]} // Bedford coordinates
+          zoom={13}
           style={{ height: '90%', width: '90%'}}
         >
 
