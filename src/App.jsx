@@ -6,13 +6,16 @@ import {  Marker, Popup, useMapEvents } from 'react-leaflet';
 
 
 
-function ClickHandler( { onMapClick }){
+function ClickHandler( { onMapClick, uiLocked }){
     useMapEvents({
 
       // e stands for "event" and is the convention in JavaScript
       // This takes the latitude and longitude of the click and passing it to "handleMapClick"
       click(e) {
-        onMapClick(e.latlng);
+        if (!uiLocked){
+          onMapClick(e.latlng);
+        }
+      
       }
     });
     return null;
@@ -24,6 +27,10 @@ function App() {
   const [locations, setLocations] = useState([]);
   const [currentProvider, setCurrentProvider] = useState("osm"); // Makes sure the website defaults to osm, but the tile provider can be changed as well
   const [isDone, setIsDone] = useState(false);
+
+  const [uiLocked, setUiLocked] = useState(false);
+
+
 
   
   const [currentIcon, setCurrentIcon] = useState();
@@ -366,7 +373,7 @@ function App() {
         <div className="locations"></div>
 
 
-        <ClickHandler onMapClick={handleMapClick} />
+        <ClickHandler onMapClick={handleMapClick} uiLocked={uiLocked}/>
         {locations.map((loc, i) => (
           <Marker key={i} position={loc.latlng} icon={currentIcon || personaIcon}>
             <Popup>
@@ -420,7 +427,12 @@ function App() {
 
 
         {/* Buttons for the different tile providers */}
-        <div className="buttons">
+        <div className="buttons"
+          onMouseEnter={() => setUiLocked(true)} 
+          onMouseLeave={() => setUiLocked(false)}
+          onTouchStart={() => setUiLocked(true)}
+          onTouchEnd={() => setUiLocked(false)}
+        >
           <button onClick={(e) => setCurrentProvider("osm")}>Original</button>
           <button onClick={() => setCurrentProvider("carto")}>Greyscale</button>
           <button onClick={() => setCurrentProvider("esri")}>Satellite</button>
@@ -436,7 +448,12 @@ function App() {
         
         {/* Conditional rendering */}
         {!isDone && (
-          <div className="sidebar">
+          <div className="sidebar"
+            onMouseEnter={() => setUiLocked(true)} 
+            onMouseLeave={() => setUiLocked(false)}
+            onTouchStart={() => setUiLocked(true)}
+            onTouchEnd={() => setUiLocked(false)}
+          >
             <h3>🍴 Favorite Restaurants 🍴</h3>
 
             <div className="restaurant-list">

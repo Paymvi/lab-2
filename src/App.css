@@ -186,6 +186,14 @@ html, body {
 
 }
 
+/* Moves down sidebar for mobile to account for the flex-wrap of the buttons */
+@media (max-width: 600px) {
+  .sidebar {
+    top: 100px;
+  }
+}
+
+
 .sidebar h3 {
   text-align: center;
   margin-top: 0;
