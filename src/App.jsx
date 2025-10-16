@@ -314,6 +314,7 @@ function App() {
   const handleDelete = (id) => {
     // Filter out the locations without that id
     setLocations(prev => prev.filter(loc => loc.id !== id))
+    setUiLocked(false); // unlock the map
   };
 
 
