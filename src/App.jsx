@@ -232,7 +232,7 @@ function App() {
     if (isDone) return;
 
 
-    const info = prompt("What is your favorite restaurant around here?");
+    const info = prompt("Name this place:");
     if (!info) return;
 
     // Get the main/basic info fast
@@ -302,7 +302,7 @@ function App() {
   
   // Adds the edit and delete buttons next to the side bar elements
   const handleEdit = (id) => {
-    const newInfo = prompt("What is your (new) fav resteraunt? ")
+    const newInfo = prompt("Rename this place: ")
     if (newInfo){
       setLocations(prev =>
         prev.map(loc =>
@@ -466,7 +466,7 @@ function App() {
             onTouchStart={() => setUiLocked(true)}
             onTouchEnd={() => setUiLocked(false)}
           >
-            <h3>🍴 Favorite Restaurants 🍴</h3>
+            <h3>Saved Places</h3>
 
             <div className="restaurant-list">
               {locations.length === 0 ? (
