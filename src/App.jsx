@@ -377,52 +377,63 @@ function App() {
         <ClickHandler onMapClick={handleMapClick} uiLocked={uiLocked}/>
         {locations.map((loc, i) => (
           <Marker key={i} position={loc.latlng} icon={currentIcon || personaIcon}>
-            <Popup>
-              <strong>{loc.info}</strong>
-
-              <br/>
-              {loc.locationInfo?.city}, {loc.locationInfo?.state} <br/>
-              {loc.locationInfo?.country}
-              <br/>
-
-              {/* Shows loading screen until the rest of the information is returned */}
-              {loc.error ? (
-                <p className="error" style={{ fontStyle: "italic", whiteSpace: "pre-line"}}>{loc.error}</p>
-              ) : loc.loading ? (
-                <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                  <div className="spinner" />
-                  <em>Loading more info 👀...</em>
+            
+            <Popup className="custom-popup">
+              <div className="popup-content">
+                <div className="title">{loc.info}</div>
+                
+                <div className="section">
+                  <div className="info">
+                    <span><span className="label">Location:</span> {loc.locationInfo?.city}, {loc.locationInfo?.state}</span>
+                    <span><span className="label">Country:</span> {loc.locationInfo?.country}</span>
+                  </div>
                 </div>
-                
-              ) : (
 
-                <>
+                {!loc.loading && loc.weather && (
+                  <div className="section">
+                    <div className="entry">
+                      <span className="label">Weather:</span> {loc.weather.weatherDescription}
+                    </div>
+                    <div className="entry">
+                      <span className="label">Temp:</span> {convertToF(loc.weather.temp)}°F
+                    </div>
+                    <div className="entry">
+                      <span className="label">Wind:</span> {convertomph(loc.weather.windspeed)}mph
+                    </div>
+                    <div className="entry">
+                      <span className="label">Population:</span> {loc.wiki.population}
+                    </div>
+                  </div>
+                )}
 
 
-                  {loc.weather && (
-                    <>
-                    <br/>
-                    <strong>Temp:</strong> {convertToF(loc.weather?.temp)}°F<br/>
-                    <strong>Windspeed:</strong> {convertomph(loc.weather?.windspeed)}mph<br/>
-                    <strong>Weather:</strong> {loc.weather?.weatherDescription}<br/>
-                    </>
-                  )}
-                
-                {loc.wiki &&
-                  <>
-                  <strong>Population:</strong> {loc.wiki?.population} people<br/><br/>
-                  {loc.wiki?.image && <img src={loc.wiki?.image} alt={loc.wiki?.title} width="150" />}<br/>
-                  {loc.wiki?.description}<br/>
-                  </>
-                }
+                {loc.wiki && (
+                  <div className="section">
+                    {loc.wiki.image && (
+                      <img src={loc.wiki.image} alt="Place" className="thumbnail" />
+                    )}
 
-                </>
+                    {loc.wiki.description && (
+                      <p className="description">{loc.wiki.description}</p>
+                    )}
+                  </div>
+                )}
 
-              )}
 
-              
-              
+                {loc.loading && (
+                  <div className="section">
+                    <div className="spinner" />
+                    <em>Loading...</em>
+                  </div>
+                )}
+
+              </div>
             </Popup>
+
+
+
+
+
           </Marker>
         ))}
 
